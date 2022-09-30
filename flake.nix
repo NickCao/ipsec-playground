@@ -11,7 +11,6 @@
               src = ./nfq-test;
               cargoLock.lockFile = ./nfq-test/Cargo.lock;
             });
-            environment.systemPackages = with pkgs; [ cargo rustc ];
             services.getty.autologinUser = "root";
             users.users.test.isNormalUser = true;
           })
