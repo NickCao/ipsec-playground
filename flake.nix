@@ -10,6 +10,12 @@
             remote_ts = [ "0.0.0.0/0" "::/0" ];
             start_action = "start";
           };
+          secrets = {
+            ike = nixpkgs.lib.genAttrs [ "node1" "node2" "node3" ] (name: {
+              id.default = "${name}@gravity";
+              secret = name; # FIXME: use a real secret key
+            });
+          };
           mkConnection = { remote_addr, local_id, remote_id }: {
             version = 2;
             encap = true;
@@ -54,12 +60,7 @@
                     remote_id = "node2@gravity";
                   };
                 };
-                secrets = {
-                  ike.node2 = {
-                    id.main = "node2@gravity";
-                    secret = "0sFpZAZqEN6Ti9sqt4ZP5EWcqx";
-                  };
-                };
+                inherit secrets;
               };
             };
           };
@@ -86,12 +87,7 @@
                     remote_id = "node1@gravity";
                   };
                 };
-                secrets = {
-                  ike.node1 = {
-                    id.main = "node1@gravity";
-                    secret = "0sFpZAZqEN6Ti9sqt4ZP5EWcqx";
-                  };
-                };
+                inherit secrets;
               };
             };
           };
