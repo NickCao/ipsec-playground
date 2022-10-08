@@ -6,9 +6,9 @@
       nodes =
         let
           nodes = {
-            node1 = { addr = "192.168.1.1"; };
-            node2 = { addr = "192.168.1.2"; };
-            node3 = { addr = "192.168.1.3"; };
+            node1 = { addr = "192.168.1.1"; prefix = "100.64.1.0/24"; };
+            node2 = { addr = "192.168.1.2"; prefix = "100.64.2.0/24"; };
+            node3 = { addr = "192.168.1.3"; prefix = "100.64.3.0/24"; };
           };
           secrets = {
             ike = nixpkgs.lib.mapAttrs
