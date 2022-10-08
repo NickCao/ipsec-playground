@@ -5,36 +5,41 @@
       name = "ipsec";
       nodes =
         let
-          child = {
-            local_ts = [ "0.0.0.0/0" "::/0" ];
-            remote_ts = [ "0.0.0.0/0" "::/0" ];
-            start_action = "start";
+          nodes = {
+            node1 = { addr = "192.168.1.1"; };
+            node2 = { addr = "192.168.1.2"; };
+            node3 = { addr = "192.168.1.3"; };
           };
           secrets = {
-            ike = nixpkgs.lib.genAttrs [ "node1" "node2" "node3" ] (name: {
-              id.default = "${name}@gravity";
-              secret = name; # FIXME: use a real secret key
-            });
+            ike = nixpkgs.lib.mapAttrs
+              (name: node: {
+                id.default = "${name}@gravity";
+                secret = name; # FIXME: use a real secret key
+              })
+              nodes;
           };
-          mkConnection = { remote_addr, local_id, remote_id }: {
-            version = 2;
-            encap = true;
-            # local_addrs = [ "192.168.1.1" ];
-            remote_addrs = [ remote_addr ];
-            if_id_out = "1";
-            if_id_in = "1";
-            local.main = {
-              auth = "psk";
-              id = local_id;
-            };
-            remote.main = {
-              auth = "psk";
-              id = remote_id;
-            };
-            children = {
-              node2 = child;
-            };
-          };
+          connections = self: nixpkgs.lib.mapAttrs
+            (name: node: {
+              version = 2;
+              encap = true;
+              remote_addrs = [ node.addr ];
+              if_id_out = "1";
+              if_id_in = "1";
+              local.main = {
+                auth = "psk";
+                id = "${self}@gravity";
+              };
+              remote.main = {
+                auth = "psk";
+                id = "${name}@gravity";
+              };
+              children.default = {
+                local_ts = [ "0.0.0.0/0" "::/0" ];
+                remote_ts = [ "0.0.0.0/0" "::/0" ];
+                start_action = "start";
+              };
+            })
+            nodes;
         in
         {
           node1 = { config, pkgs, ... }: {
@@ -53,13 +58,7 @@
             services.strongswan-swanctl = {
               enable = true;
               swanctl = {
-                connections = {
-                  node2 = mkConnection {
-                    remote_addr = "192.168.1.2";
-                    local_id = "node1@gravity";
-                    remote_id = "node2@gravity";
-                  };
-                };
+                connections = connections "node1";
                 inherit secrets;
               };
             };
@@ -80,13 +79,7 @@
             services.strongswan-swanctl = {
               enable = true;
               swanctl = {
-                connections = {
-                  node2 = mkConnection {
-                    remote_addr = "192.168.1.1";
-                    local_id = "node2@gravity";
-                    remote_id = "node1@gravity";
-                  };
-                };
+                connections = connections "node2";
                 inherit secrets;
               };
             };
