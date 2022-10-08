@@ -10,6 +10,24 @@
             remote_ts = [ "0.0.0.0/0" "::/0" ];
             start_action = "start";
           };
+          mkConnection = { remote_addr, local_id, remote_id }: {
+            version = 2;
+            # local_addrs = [ "192.168.1.1" ];
+            remote_addrs = [ remote_addr ];
+            if_id_out = "1";
+            if_id_in = "1";
+            local.main = {
+              auth = "psk";
+              id = local_id;
+            };
+            remote.main = {
+              auth = "psk";
+              id = remote_id;
+            };
+            children = {
+              node2 = child;
+            };
+          };
         in
         {
           node1 = { config, pkgs, ... }: {
@@ -29,23 +47,10 @@
               enable = true;
               swanctl = {
                 connections = {
-                  node2 = {
-                    version = 2;
-                    local_addrs = [ "192.168.1.1" ];
-                    remote_addrs = [ "192.168.1.2" ];
-                    if_id_out = "1";
-                    if_id_in = "1";
-                    local.main = {
-                      auth = "psk";
-                      id = "node1@gravity";
-                    };
-                    remote.main = {
-                      auth = "psk";
-                      id = "node2@gravity";
-                    };
-                    children = {
-                      node2 = child;
-                    };
+                  node2 = mkConnection {
+                    remote_addr = "192.168.1.2";
+                    local_id = "node1@gravity";
+                    remote_id = "node2@gravity";
                   };
                 };
                 secrets = {
@@ -74,23 +79,10 @@
               enable = true;
               swanctl = {
                 connections = {
-                  node1 = {
-                    version = 2;
-                    local_addrs = [ "192.168.1.2" ];
-                    remote_addrs = [ "192.168.1.1" ];
-                    if_id_out = "1";
-                    if_id_in = "1";
-                    local.default = {
-                      auth = "psk";
-                      id = "node2@gravity";
-                    };
-                    remote.default = {
-                      auth = "psk";
-                      id = "node1@gravity";
-                    };
-                    children = {
-                      node1 = child;
-                    };
+                  node2 = mkConnection {
+                    remote_addr = "192.168.1.1";
+                    local_id = "node2@gravity";
+                    remote_id = "node1@gravity";
                   };
                 };
                 secrets = {
