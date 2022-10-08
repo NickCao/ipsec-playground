@@ -25,6 +25,8 @@
                   version = 2;
                   local_addrs = [ "192.168.1.1" ];
                   remote_addrs = [ "192.168.1.2" ];
+                  if_id_out = "1";
+                  if_id_in = "1";
                   local.main = {
                     auth = "psk";
                     id = "node1@gravity";
@@ -37,8 +39,6 @@
                     node2 = {
                       local_ts = [ "0.0.0.0/0" ];
                       remote_ts = [ "0.0.0.0/0" ];
-                      if_id_out = "1";
-                      if_id_in = "1";
                       start_action = "start";
                     };
                   };
@@ -74,6 +74,8 @@
                   version = 2;
                   local_addrs = [ "192.168.1.2" ];
                   remote_addrs = [ "192.168.1.1" ];
+                  if_id_out = "1";
+                  if_id_in = "1";
                   local.main = {
                     auth = "psk";
                     id = "node2@gravity";
@@ -86,8 +88,6 @@
                     node1 = {
                       local_ts = [ "0.0.0.0/0" ];
                       remote_ts = [ "0.0.0.0/0" ];
-                      if_id_out = "1";
-                      if_id_in = "1";
                       start_action = "start";
                     };
                   };
