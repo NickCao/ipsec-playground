@@ -12,6 +12,7 @@
           };
           mkConnection = { remote_addr, local_id, remote_id }: {
             version = 2;
+            encap = true;
             # local_addrs = [ "192.168.1.1" ];
             remote_addrs = [ remote_addr ];
             if_id_out = "1";
