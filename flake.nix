@@ -25,10 +25,7 @@
                 };
                 useNetworkd = true;
               };
-              services.iperf3 = {
-                enable = true;
-                openFirewall = true;
-              };
+              services.iperf3.enable = true;
               systemd.network.netdevs = pkgs.lib.mapAttrs
                 (name: node: {
                   netdevConfig = {
