@@ -75,11 +75,11 @@
                       remote_port = node.port;
                       if_id_out = toString node.id;
                       if_id_in = toString node.id;
-                      local.main = {
+                      local.default = {
                         auth = "psk";
                         id = "${n}@gravity";
                       };
-                      remote.main = {
+                      remote.default = {
                         auth = "psk";
                         id = "${name}@gravity";
                       };
