@@ -17,13 +17,17 @@
               others = nixpkgs.lib.filterAttrs (name: node: node.id != self.id) nodes;
             in
             ({ config, pkgs, ... }: {
-              environment.systemPackages = [ pkgs.strongswan ];
+              environment.systemPackages = [ pkgs.strongswan pkgs.iperf3 ];
               networking = {
                 firewall = {
                   allowedUDPPorts = [ self.port ];
                   trustedInterfaces = pkgs.lib.attrNames others;
                 };
                 useNetworkd = true;
+              };
+              services.iperf3 = {
+                enable = true;
+                openFirewall = true;
               };
               systemd.network.netdevs = pkgs.lib.mapAttrs
                 (name: node: {
@@ -138,6 +142,7 @@
         print(node1.succeed("swanctl --list-conns"))
         print(node1.succeed("birdc s babel n"))
         print(node1.succeed("birdc s r"))
+        print(node1.succeed("iperf3 -c fc00:2::1"))
       '';
     };
   };
