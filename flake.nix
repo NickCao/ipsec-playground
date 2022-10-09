@@ -177,10 +177,12 @@
         node1.wait_for_unit("strongswan-swanctl.service")
         node1.wait_for_unit("bird2.service")
         node1.succeed("sleep 5")
-        print(node1.succeed("cat /etc/swanctl/swanctl.conf"))
-        print(node1.succeed("swanctl --list-conns"))
         print(node1.succeed("birdc s babel n"))
         print(node1.succeed("birdc s r"))
+        print(node1.succeed("iperf3 -c fc00:2::1"))
+        node1.succeed("ip addr flush dev eth1")
+        node1.succeed("ip addr add 192.168.1.100/24 dev eth1")
+        node1.succeed("sleep 5")
         print(node1.succeed("iperf3 -c fc00:2::1"))
       '';
     };
