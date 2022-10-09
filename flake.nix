@@ -70,8 +70,9 @@
                     (name: node: {
                       version = 2;
                       encap = true;
+                      local_addrs = [ "%any" ]; # acccept connection to any address
+                      remote_addrs = [ node.addr "%any" ]; # try connection to specific address, allow connection from any address
                       remote_port = node.port;
-                      remote_addrs = [ node.addr ];
                       if_id_out = toString node.id;
                       if_id_in = toString node.id;
                       local.main = {
