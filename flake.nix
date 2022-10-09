@@ -62,6 +62,7 @@
               others = nixpkgs.lib.filterAttrs (name: node: node.id != self.id) nodes;
             in
             ({ config, pkgs, ... }: {
+              virtualisation.vlans = [ 1 2 ];
               environment.systemPackages = [ pkgs.strongswan pkgs.iperf3 ];
               environment.etc."swanctl/private/local.pem".text = self.priv;
               networking = {
@@ -176,6 +177,7 @@
         start_all()
         node1.wait_for_unit("strongswan-swanctl.service")
         node1.wait_for_unit("bird2.service")
+        print(node1.succeed("ip a"))
         node1.succeed("sleep 5")
         print(node1.succeed("birdc s babel n"))
         print(node1.succeed("birdc s r"))
