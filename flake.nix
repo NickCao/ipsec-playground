@@ -6,9 +6,9 @@
       nodes =
         let
           nodes = {
-            node1 = { id = 1; addr = "192.168.1.1"; prefix = "100.64.1.0/24"; };
-            node2 = { id = 2; addr = "192.168.1.2"; prefix = "100.64.2.0/24"; };
-            node3 = { id = 3; addr = "192.168.1.3"; prefix = "100.64.3.0/24"; };
+            node1 = { id = 1; addr = "192.168.1.1"; prefix = "100.64.1.1/24"; };
+            node2 = { id = 2; addr = "192.168.1.2"; prefix = "100.64.2.1/24"; };
+            node3 = { id = 3; addr = "192.168.1.3"; prefix = "100.64.3.1/24"; };
           };
         in
         nixpkgs.lib.mapAttrs
@@ -33,12 +33,24 @@
                     Independent = true;
                   };
                 })
-                others;
+                others // {
+                gravity = {
+                  netdevConfig = {
+                    Kind = "dummy";
+                    Name = "gravity";
+                  };
+                };
+              };
               systemd.network.networks = pkgs.lib.mapAttrs
                 (name: node: {
                   inherit name;
                 })
-                others;
+                others // {
+                gravity = {
+                  name = "gravity";
+                  address = [ self.prefix ];
+                };
+              };
               services.strongswan-swanctl = {
                 enable = true;
                 swanctl = {
@@ -78,6 +90,7 @@
         start_all()
         node1.wait_for_unit("strongswan-swanctl.service")
         print(node1.succeed("swanctl --list-conns"))
+        print(node1.succeed("ip addr"))
       '';
     };
   };
