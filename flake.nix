@@ -134,6 +134,7 @@
         node1.wait_for_unit("strongswan-swanctl.service")
         node1.wait_for_unit("bird2.service")
         node1.succeed("sleep 5")
+        print(node1.succeed("cat /etc/swanctl/swanctl.conf"))
         print(node1.succeed("swanctl --list-conns"))
         print(node1.succeed("birdc s babel n"))
         print(node1.succeed("birdc s r"))
