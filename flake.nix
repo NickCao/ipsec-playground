@@ -48,7 +48,7 @@
             systemd.services.create-link = {
               path = [ pkgs.iproute2 ];
               script = ''
-                ip link add magic type xfrm dev eth0 if_id 0x1
+                ip link add magic type xfrm dev lo if_id 0x1
                 ip link set magic up
                 ip addr add 192.168.10.1/24 dev magic
               '';
@@ -69,7 +69,7 @@
             systemd.services.create-link = {
               path = [ pkgs.iproute2 ];
               script = ''
-                ip link add magic type xfrm dev eth0 if_id 0x1
+                ip link add magic type xfrm dev lo if_id 0x1
                 ip link set magic up
                 ip addr add 192.168.10.2/24 dev magic
               '';
