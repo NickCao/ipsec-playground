@@ -76,21 +76,57 @@
                       };
                     })
                     others;
-                  secrets.ike = pkgs.lib.mapAttrs
-                    (name: node: {
-                      id.default = "${name}@gravity";
-                      secret = name; # FIXME: use a real secret key
-                    })
-                    others;
+                  secrets.ike.shared = {
+                    id = pkgs.lib.mapAttrs (name: _: "${name}@gravity") nodes;
+                    secret = "supersecretpsk";
+                  };
                 };
+              };
+              services.bird2 = {
+                enable = true;
+                config = ''
+                  protocol device {
+                    scan time 1;
+                  }
+
+                  protocol kernel {
+                    ipv4 {
+                      export all;
+                      import none;
+                    };
+                  }
+
+                  protocol direct {
+                    ipv4;
+                    interface "gravity";
+                  }
+
+                  protocol babel {
+                    ipv4 {
+                      export all;
+                      import all;
+                    };
+                    randomize router id;
+                    interface "node*" {
+                      hello interval 1 s;
+                    };
+                  }
+                '';
               };
             }))
           nodes;
       testScript = ''
         start_all()
         node1.wait_for_unit("strongswan-swanctl.service")
+        node1.wait_for_unit("bird2.service")
         print(node1.succeed("swanctl --list-conns"))
+        print(node1.succeed("cat /etc/swanctl/swanctl.conf"))
+        node1.succeed("sleep 10")
+        print(node1.succeed("ping -c 10 ff02::1%node2"))
+        print(node1.succeed("ping -c 10 ff02::1%node3"))
         print(node1.succeed("ip addr"))
+        print(node1.succeed("ip route"))
+        print(node1.succeed("birdc s babel n"))
       '';
     };
   };
