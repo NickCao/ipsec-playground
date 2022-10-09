@@ -6,9 +6,9 @@
       nodes =
         let
           nodes = {
-            node1 = { id = 1; addr = "192.168.1.1"; prefix = "fc00:1::1/64"; };
-            node2 = { id = 2; addr = "192.168.1.2"; prefix = "fc00:2::1/64"; };
-            node3 = { id = 3; addr = "192.168.1.3"; prefix = "fc00:3::1/64"; };
+            node1 = { id = 1; addr = "192.168.1.1"; prefix = "fc00:1::1/64"; port = 50001; };
+            node2 = { id = 2; addr = "192.168.1.2"; prefix = "fc00:2::1/64"; port = 50002; };
+            node3 = { id = 3; addr = "192.168.1.3"; prefix = "fc00:3::1/64"; port = 50003; };
           };
         in
         nixpkgs.lib.mapAttrs
@@ -20,7 +20,7 @@
               environment.systemPackages = [ pkgs.strongswan ];
               networking = {
                 firewall = {
-                  allowedUDPPorts = [ 500 4500 ];
+                  allowedUDPPorts = [ self.port 500 4500 ];
                   trustedInterfaces = pkgs.lib.attrNames others;
                 };
                 useNetworkd = true;
@@ -59,11 +59,17 @@
               };
               services.strongswan-swanctl = {
                 enable = true;
+                strongswan.extraConfig = ''
+                  charon {
+                    port = ${toString self.port}
+                  }
+                '';
                 swanctl = {
                   connections = pkgs.lib.mapAttrs
                     (name: node: {
                       version = 2;
                       encap = true;
+                      remote_port = node.port;
                       remote_addrs = [ node.addr ];
                       if_id_out = toString node.id;
                       if_id_in = toString node.id;
