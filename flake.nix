@@ -97,6 +97,7 @@
         start_all()
         node1.wait_for_unit("xfirm.service")
         print(node1.succeed("swanctl --list-conns"))
+        print(node1.succeed("ping -c 10 ff02::1%link2"))
         node1.succeed("sleep 10")
       '';
     };

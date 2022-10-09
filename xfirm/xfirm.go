@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/ed25519"
+	"crypto/x509"
 	"encoding/json"
 	"encoding/pem"
 	"flag"
@@ -81,6 +83,14 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+		privateKey, err := x509.ParsePKCS8PrivateKey(local.PrivateKey)
+		if err != nil {
+			panic(err)
+		}
+		publicKey, err := x509.MarshalPKIXPublicKey(privateKey.(ed25519.PrivateKey).Public())
+		if err != nil {
+			panic(err)
+		}
 		for _, remote := range cfg.Remotes {
 			ifid = ifid + 1
 			conn, err := vici.MarshalMessage(Connection{
@@ -92,8 +102,11 @@ func main() {
 				IfIdIn:      ifid,
 				IfIdOut:     ifid,
 				Local: Local{
-					Auth:    "pubkey",
-					Pubkeys: []string{},
+					Auth: "pubkey",
+					Pubkeys: []string{string(pem.EncodeToMemory(&pem.Block{
+						Type:  "PUBLIC KEY",
+						Bytes: publicKey,
+					}))},
 				},
 				Remote: Remote{
 					Auth: "pubkey",
