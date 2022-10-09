@@ -28,7 +28,7 @@ type Remote struct {
 type Child struct {
 	LocalTS     []string `vici:"local_ts"`
 	RemoteTs    []string `vici:"remote_ts"`
-	StartAction string
+	StartAction string   `vici:"start_action"`
 }
 
 type Connection struct {

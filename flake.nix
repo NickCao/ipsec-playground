@@ -68,6 +68,7 @@
         in
         nixpkgs.lib.mapAttrs
           (name: cfg: ({ config, pkgs, ... }: {
+            networking.firewall.enable = false;
             boot.kernel.sysctl = {
               "net.ipv6.conf.default.forwarding" = 1;
               "net.ipv4.conf.default.forwarding" = 1;
@@ -96,9 +97,10 @@
       testScript = ''
         start_all()
         node1.wait_for_unit("xfirm.service")
+        node2.wait_for_unit("xfirm.service")
+        node3.wait_for_unit("xfirm.service")
         print(node1.succeed("swanctl --list-conns"))
         print(node1.succeed("ping -c 10 ff02::1%link2"))
-        node1.succeed("sleep 10")
       '';
     };
   };
