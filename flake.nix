@@ -123,10 +123,12 @@
                       if_id_out = toString node.id;
                       if_id_in = toString node.id;
                       local.default = {
+                        auth = "pubkey";
                         id = "${n}@gravity";
                         pubkeys = [ (builtins.toFile "local.pub" self.pub) ];
                       };
                       remote.default = {
+                        auth = "pubkey";
                         id = "${name}@gravity";
                         pubkeys = [ (builtins.toFile "remote.pub" node.pub) ];
                       };
