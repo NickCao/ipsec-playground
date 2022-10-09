@@ -6,9 +6,54 @@
       nodes =
         let
           nodes = {
-            node1 = { id = 1; addr = "192.168.1.1"; prefix = "fc00:1::1/64"; port = 50001; };
-            node2 = { id = 2; addr = "192.168.1.2"; prefix = "fc00:2::1/64"; port = 50002; };
-            node3 = { id = 3; addr = "192.168.1.3"; prefix = "fc00:3::1/64"; port = 50003; };
+            node1 = {
+              id = 1;
+              addr = "192.168.1.1";
+              prefix = "fc00:1::1/64";
+              port = 50001;
+              pub = ''
+                -----BEGIN PUBLIC KEY-----
+                MCowBQYDK2VwAyEA0fIFaKz0kB/jlgjHQZLdlfELwUx5W3/mEErkDPRTKgg=
+                -----END PUBLIC KEY-----
+              '';
+              priv = ''
+                -----BEGIN PRIVATE KEY-----
+                MC4CAQAwBQYDK2VwBCIEIMamaugVRsYMY3N2iS5jaxDnnuUzFE6A2sg8dh7WStD1
+                -----END PRIVATE KEY-----
+              '';
+            };
+            node2 = {
+              id = 2;
+              addr = "192.168.1.2";
+              prefix = "fc00:2::1/64";
+              port = 50002;
+              pub = ''
+                -----BEGIN PUBLIC KEY-----
+                MCowBQYDK2VwAyEAqLIvzUm/xMgSyDW3EmtOw65zjPuLsN7Pz57fFJiOCsg=
+                -----END PUBLIC KEY-----
+              '';
+              priv = ''
+                -----BEGIN PRIVATE KEY-----
+                MC4CAQAwBQYDK2VwBCIEIBujPwQglT7ZgM7MBXM9SNXax5ClhEj3bysEdlFbt/nq
+                -----END PRIVATE KEY-----
+              '';
+            };
+            node3 = {
+              id = 3;
+              addr = "192.168.1.3";
+              prefix = "fc00:3::1/64";
+              port = 50003;
+              pub = ''
+                -----BEGIN PUBLIC KEY-----
+                MCowBQYDK2VwAyEArVLalM1amJ9neWgPb8ACmLUC8CgD/JvT09IlA3PvHDo=
+                -----END PUBLIC KEY-----
+              '';
+              priv = ''
+                -----BEGIN PRIVATE KEY-----
+                MC4CAQAwBQYDK2VwBCIEIMqyIbIcIWt09kAXfDm/XLbsSJQQykTgP2u3EiszHxgn
+                -----END PRIVATE KEY-----
+              '';
+            };
           };
         in
         nixpkgs.lib.mapAttrs
@@ -18,6 +63,7 @@
             in
             ({ config, pkgs, ... }: {
               environment.systemPackages = [ pkgs.strongswan pkgs.iperf3 ];
+              environment.etc."swanctl/private/local.pem".text = self.priv;
               networking = {
                 firewall = {
                   allowedUDPPorts = [ self.port ];
@@ -77,12 +123,12 @@
                       if_id_out = toString node.id;
                       if_id_in = toString node.id;
                       local.default = {
-                        auth = "psk";
                         id = "${n}@gravity";
+                        pubkeys = [ (builtins.toFile "local.pub" self.pub) ];
                       };
                       remote.default = {
-                        auth = "psk";
                         id = "${name}@gravity";
+                        pubkeys = [ (builtins.toFile "remote.pub" node.pub) ];
                       };
                       children.default = {
                         local_ts = [ "0.0.0.0/0" "::/0" ];
@@ -91,10 +137,6 @@
                       };
                     })
                     others;
-                  secrets.ike.shared = {
-                    id = pkgs.lib.mapAttrs (name: _: "${name}@gravity") nodes;
-                    secret = "supersecretpsk";
-                  };
                 };
               };
               services.bird2 = {
