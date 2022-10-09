@@ -20,7 +20,7 @@
               environment.systemPackages = [ pkgs.strongswan ];
               networking = {
                 firewall = {
-                  allowedUDPPorts = [ self.port 500 4500 ];
+                  allowedUDPPorts = [ self.port ];
                   trustedInterfaces = pkgs.lib.attrNames others;
                 };
                 useNetworkd = true;
@@ -61,7 +61,8 @@
                 enable = true;
                 strongswan.extraConfig = ''
                   charon {
-                    port = ${toString self.port}
+                    port = 0
+                    port_nat_t = ${toString self.port}
                   }
                 '';
                 swanctl = {
@@ -133,7 +134,7 @@
         node1.wait_for_unit("bird2.service")
         print(node1.succeed("swanctl --list-conns"))
         print(node1.succeed("cat /etc/swanctl/swanctl.conf"))
-        node1.succeed("sleep 5")
+        node1.succeed("sleep 10")
         print(node1.succeed("birdc s babel n"))
         print(node1.succeed("birdc s r"))
       '';
