@@ -19,7 +19,10 @@
             ({ config, pkgs, ... }: {
               environment.systemPackages = [ pkgs.strongswan ];
               networking = {
-                firewall.enable = false;
+                firewall = {
+                  allowedUDPPorts = [ 500 4500 ];
+                  trustedInterfaces = pkgs.lib.attrNames others;
+                };
                 useNetworkd = true;
               };
               systemd.network.netdevs = pkgs.lib.mapAttrs
