@@ -83,12 +83,6 @@
               after = [ "strongswan-swanctl.service" ];
               serviceConfig.RemainAfterExit = true;
               script = ''
-                ip link add link1 type xfrm dev lo if_id 0x1
-                ip link add link2 type xfrm dev lo if_id 0x2
-                ip link add link3 type xfrm dev lo if_id 0x3
-                ip link set link1 multicast on up
-                ip link set link2 multicast on up
-                ip link set link3 multicast on up
                 ${packages.x86_64-linux.xfirm}/bin/xfirm -config ${mkConfig name}
               '';
             };
@@ -100,7 +94,6 @@
         node2.wait_for_unit("xfirm.service")
         node3.wait_for_unit("xfirm.service")
         print(node1.succeed("swanctl --list-conns"))
-        print(node1.succeed("ping -c 10 ff02::1%link2"))
       '';
     };
   };
