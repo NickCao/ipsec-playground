@@ -6,9 +6,9 @@
       nodes =
         let
           nodes = {
-            node1 = { id = 1; addr = "192.168.1.1"; prefix = "100.64.1.1/24"; };
-            node2 = { id = 2; addr = "192.168.1.2"; prefix = "100.64.2.1/24"; };
-            node3 = { id = 3; addr = "192.168.1.3"; prefix = "100.64.3.1/24"; };
+            node1 = { id = 1; addr = "192.168.1.1"; prefix = "fc00:1::1/64"; };
+            node2 = { id = 2; addr = "192.168.1.2"; prefix = "fc00:2::1/64"; };
+            node3 = { id = 3; addr = "192.168.1.3"; prefix = "fc00:3::1/64"; };
           };
         in
         nixpkgs.lib.mapAttrs
@@ -93,19 +93,19 @@
                   }
 
                   protocol kernel {
-                    ipv4 {
+                    ipv6 {
                       export all;
                       import none;
                     };
                   }
 
                   protocol direct {
-                    ipv4;
+                    ipv6;
                     interface "gravity";
                   }
 
                   protocol babel {
-                    ipv4 {
+                    ipv6 {
                       export all;
                       import all;
                     };
@@ -124,7 +124,7 @@
         node1.wait_for_unit("bird2.service")
         print(node1.succeed("swanctl --list-conns"))
         print(node1.succeed("cat /etc/swanctl/swanctl.conf"))
-        node1.succeed("sleep 10")
+        node1.succeed("sleep 5")
         print(node1.succeed("birdc s babel n"))
         print(node1.succeed("birdc s r"))
       '';
