@@ -133,7 +133,7 @@
                       children.default = {
                         local_ts = [ "0.0.0.0/0" "::/0" ];
                         remote_ts = [ "0.0.0.0/0" "::/0" ];
-                        start_action = "start";
+                        start_action = "trap";
                       };
                     })
                     others;
