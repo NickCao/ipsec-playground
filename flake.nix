@@ -62,8 +62,13 @@
               others = nixpkgs.lib.filterAttrs (name: node: node.id != self.id) nodes;
             in
             ({ config, pkgs, ... }: {
-              virtualisation.vlans = [ 1 2 ];
-              environment.systemPackages = [ pkgs.strongswan pkgs.iperf3 ];
+              boot.kernel.sysctl = {
+                "net.ipv6.conf.default.forwarding" = 1;
+                "net.ipv4.conf.default.forwarding" = 1;
+                "net.ipv6.conf.all.forwarding" = 1;
+                "net.ipv4.conf.all.forwarding" = 1;
+              };
+              environment.systemPackages = [ pkgs.strongswan pkgs.iperf3 pkgs.mtr ];
               environment.etc."swanctl/private/local.pem".text = self.priv;
               networking = {
                 firewall = {
@@ -181,11 +186,16 @@
         node1.succeed("sleep 5")
         print(node1.succeed("birdc s babel n"))
         print(node1.succeed("birdc s r"))
-        print(node1.succeed("iperf3 -c fc00:2::1"))
+        print(node1.succeed("mtr -r fc00:2::1"))
         node1.succeed("ip addr flush dev eth1")
         node1.succeed("ip addr add 192.168.1.100/24 dev eth1")
         node1.succeed("sleep 5")
-        print(node1.succeed("iperf3 -c fc00:2::1"))
+        print(node1.succeed("mtr -r fc00:2::1"))
+        node1.succeed("ip r add 192.168.1.2 dev lo")
+        node1.succeed("sleep 10")
+        print(node1.succeed("birdc s r"))
+        print(node2.succeed("birdc s r"))
+        print(node1.succeed("mtr -r fc00:2::1"))
       '';
     };
   };
