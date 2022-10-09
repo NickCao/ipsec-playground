@@ -6,9 +6,9 @@
       nodes =
         let
           nodes = {
-            node1 = { addr = "192.168.1.1"; prefix = "100.64.1.0/24"; };
-            node2 = { addr = "192.168.1.2"; prefix = "100.64.2.0/24"; };
-            node3 = { addr = "192.168.1.3"; prefix = "100.64.3.0/24"; };
+            node1 = { id = 1; addr = "192.168.1.1"; prefix = "100.64.1.0/24"; };
+            node2 = { id = 2; addr = "192.168.1.2"; prefix = "100.64.2.0/24"; };
+            node3 = { id = 3; addr = "192.168.1.3"; prefix = "100.64.3.0/24"; };
           };
           secrets = {
             ike = nixpkgs.lib.mapAttrs
@@ -41,58 +41,48 @@
             })
             nodes;
         in
-        {
-          node1 = { config, pkgs, ... }: {
-            environment.systemPackages = [ pkgs.strongswan ];
-            networking.firewall.enable = false;
-            systemd.services.create-link = {
-              path = [ pkgs.iproute2 ];
-              script = ''
-                ip link add magic type xfrm dev lo if_id 0x1
-                ip link set magic up
-                ip addr add 192.168.10.1/24 dev magic
-              '';
-              before = [ "strongswan-swanctl.service" ];
-              wantedBy = [ "multi-user.target" ];
-            };
-            services.strongswan-swanctl = {
-              enable = true;
-              swanctl = {
-                connections = connections "node1";
-                inherit secrets;
+        nixpkgs.lib.mapAttrs
+          (n: self:
+            let
+              others = nixpkgs.lib.filterAttrs (name: node: node.id != self.id) nodes;
+            in
+            ({ config, pkgs, ... }: {
+              environment.systemPackages = [ pkgs.strongswan ];
+              networking = {
+                firewall.enable = false;
+                useNetworkd = true;
               };
-            };
-          };
-          node2 = { config, pkgs, ... }: {
-            environment.systemPackages = [ pkgs.strongswan ];
-            networking.firewall.enable = false;
-            systemd.services.create-link = {
-              path = [ pkgs.iproute2 ];
-              script = ''
-                ip link add magic type xfrm dev lo if_id 0x1
-                ip link set magic up
-                ip addr add 192.168.10.2/24 dev magic
-              '';
-              before = [ "strongswan-swanctl.service" ];
-              wantedBy = [ "multi-user.target" ];
-            };
-            services.strongswan-swanctl = {
-              enable = true;
-              swanctl = {
-                connections = connections "node2";
-                inherit secrets;
+              systemd.network.netdevs = pkgs.lib.mapAttrs
+                (name: node: {
+                  netdevConfig = {
+                    Kind = "xfrm";
+                    Name = name;
+                  };
+                  xfrmConfig = {
+                    InterfaceId = node.id;
+                    Independent = true;
+                  };
+                })
+                others;
+              systemd.network.networks = pkgs.lib.mapAttrs
+                (name: node: {
+                  inherit name;
+                })
+                others;
+              /*
+              services.strongswan-swanctl = {
+                enable = true;
+                swanctl = {
+                  connections = connections "node1";
+                  inherit secrets;
+                };
               };
-            };
-          };
-        };
+              */
+            }))
+          nodes;
       testScript = ''
-        node1.wait_for_unit("strongswan-swanctl.service")
-        node2.wait_for_unit("strongswan-swanctl.service")
-        print(node1.succeed("ip xfrm state"))
-        print(node1.succeed("ip xfrm policy"))
-        print(node1.succeed("swanctl --list-conns"))
-        print(node1.succeed("cat /etc/swanctl/swanctl.conf"))
-        print(node1.succeed("ping -c 10 192.168.10.2"))
+        node1.wait_for_unit("network-online.target")
+        print(node1.succeed("ip a"))
       '';
     };
   };
