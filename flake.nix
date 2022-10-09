@@ -4,7 +4,7 @@
     packages.x86_64-linux.xfirm = nixpkgs.legacyPackages.x86_64-linux.buildGoModule {
       name = "xfirm";
       src = ./xfirm;
-      vendorHash = "sha256-3Qc2tNGUtb0nPqp7dKmwzJtncXgN3PGYdwPIX3AK4rg=";
+      vendorHash = "sha256-8me72CSI6n1YHsoT7dByHytR+zX4HUg88rjNjcbrIiY=";
       overrideModAttrs = _: {
         postConfigure = ''
           export GOPROXY=https://goproxy.cn
@@ -94,6 +94,7 @@
         node2.wait_for_unit("xfirm.service")
         node3.wait_for_unit("xfirm.service")
         print(node1.succeed("swanctl --list-conns"))
+        print(node1.succeed("ping -c 10 ff02::1%node1-node2"))
       '';
     };
   };

@@ -41,7 +41,7 @@ func PublicKeyToPem(key any) (string, error) {
 
 func GenerateKeypair() (string, string, error) {
 	// openssl genpkey -algorithm ed25519 -outform PEM
-  // openssl pkey -pubout
+	// openssl pkey -pubout
 	publicKey, privateKey, err := ed25519.GenerateKey(rand.Reader)
 	if err != nil {
 		return "", "", err
