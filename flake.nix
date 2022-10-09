@@ -44,6 +44,9 @@
               systemd.network.networks = pkgs.lib.mapAttrs
                 (name: node: {
                   inherit name;
+                  linkConfig = {
+                    Multicast = true;
+                  };
                 })
                 others // {
                 gravity = {
@@ -122,11 +125,8 @@
         print(node1.succeed("swanctl --list-conns"))
         print(node1.succeed("cat /etc/swanctl/swanctl.conf"))
         node1.succeed("sleep 10")
-        print(node1.succeed("ping -c 10 ff02::1%node2"))
-        print(node1.succeed("ping -c 10 ff02::1%node3"))
-        print(node1.succeed("ip addr"))
-        print(node1.succeed("ip route"))
         print(node1.succeed("birdc s babel n"))
+        print(node1.succeed("birdc s r"))
       '';
     };
   };
