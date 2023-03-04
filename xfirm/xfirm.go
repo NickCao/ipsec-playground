@@ -1,8 +1,6 @@
 package main
 
 import (
-	"crypto/ed25519"
-	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
 	"flag"
@@ -65,7 +63,7 @@ func main() {
 		panic(err)
 	}
 
-	key, err := vici.MarshalMessage(EncodePrivateKey(sk))
+	key, err := vici.MarshalMessage(EncodePrivateKeyMessage(sk))
 	if err != nil {
 		panic(err)
 	}

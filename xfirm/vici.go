@@ -10,7 +10,7 @@ import (
 	"github.com/NickCao/xfirm/config"
 )
 
-func EncodePrivateKey(key []byte) PrivateKey {
+func EncodePrivateKeyMessage(key []byte) PrivateKey {
 	return PrivateKey{
 		Type: "any",
 		Data: string(pem.EncodeToMemory(&pem.Block{
