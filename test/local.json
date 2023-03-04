@@ -4,14 +4,14 @@
     {
       "id": "local6",
       "family": "ip6",
-      "address": "",
-      "port": 6500
+      "address": "2402:f000:2:c801:3a00:25ff:fe59:8c06",
+      "port": 12500
     },
     {
       "id": "local4",
       "family": "ip4",
-      "address": "",
-      "port": 6500
+      "address": "183.172.204.237",
+      "port": 12500
     }
   ]
 }

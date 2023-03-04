@@ -6,25 +6,25 @@
         "id": "nrt06",
         "family": "ip6",
         "address": "2001:19f0:7001:53db:5400:4ff:fe19:b7a0",
-        "port": 6500
+        "port": 12500
       },
       {
         "id": "nrt04",
         "family": "ip4",
         "address": "45.32.61.43",
-        "port": 6500
+        "port": 12500
       },
       {
         "id": "local6",
         "family": "ip6",
         "address": "",
-        "port": 6500
+        "port": 12500
       },
       {
         "id": "local4",
         "family": "ip4",
         "address": "",
-        "port": 6500
+        "port": 12500
       }
     ]
   }
