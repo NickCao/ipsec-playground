@@ -76,12 +76,19 @@ func main() {
 	for _, local := range config.Endpoints {
 		for _, identity := range registry {
 			for _, remote := range identity.Endpoints {
-				conn, err := vici.MarshalMessage(NewConnection(
+				fmt.Printf("local: %+v, remote: %+v\n", local, remote)
+
+				n := NewConnection(
 					local,
 					remote,
 					pk,
 					pk,
-				))
+				)
+				if n == nil {
+					continue
+				}
+
+				conn, err := vici.MarshalMessage(*n)
 				if err != nil {
 					panic(err)
 				}
