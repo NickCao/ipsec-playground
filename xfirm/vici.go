@@ -4,6 +4,16 @@ import (
 	"encoding/pem"
 )
 
+func EncodePrivkey(key []byte) PrivateKey {
+	return PrivateKey{
+		Type: "any",
+		Data: string(pem.EncodeToMemory(&pem.Block{
+			Type:  "PRIVATE KEY",
+			Bytes: key,
+		})),
+	}
+}
+
 func EncodePubkey(key []byte) string {
 	return string(pem.EncodeToMemory(&pem.Block{
 		Type:  "PUBLIC KEY",
@@ -88,7 +98,7 @@ type Child struct {
 	StartAction string   `vici:"start_action"`
 }
 
-type Key struct {
+type PrivateKey struct {
 	Type string `vici:"type"`
 	Data string `vici:"data"`
 }

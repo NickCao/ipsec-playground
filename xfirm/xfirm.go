@@ -6,14 +6,10 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"flag"
-	"fmt"
-	"math"
-	"net"
 	"os"
 
 	"github.com/NickCao/xfirm/config"
 	"github.com/strongswan/govici/vici"
-	"github.com/vishvananda/netlink"
 )
 
 var configFile = flag.String("config", "/etc/xfirm.conf", "path to config file")
@@ -38,10 +34,8 @@ func main() {
 		panic(err)
 	}
 
-	ifid := 0
-
 	for _, local := range cfg.Locals {
-		key, err := vici.MarshalMessage(Key{
+		key, err := vici.MarshalMessage(PrivateKey{
 			Type: "any",
 			Data: string(pem.EncodeToMemory(&pem.Block{
 				Type:  "PRIVATE KEY",
