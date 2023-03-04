@@ -57,10 +57,6 @@ func NewConnection(
 		return nil
 	}
 
-	if localEndpoint.Address == "" && remoteEndpoint.Address == "" {
-		return nil
-	}
-
 	var remoteAddress []string
 
 	if remoteEndpoint.Address != "" {
