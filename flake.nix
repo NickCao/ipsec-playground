@@ -1,5 +1,5 @@
 {
-  inputs.nixpkgs.url = "github:NickCao/nixpkgs/nixos-unstable-small";
+  inputs.nixpkgs.url = "github:NickCao/nixpkgs";
   outputs = { self, nixpkgs, ... }: rec {
     packages.x86_64-linux.xfirm = nixpkgs.legacyPackages.x86_64-linux.buildGoModule {
       name = "xfirm";
