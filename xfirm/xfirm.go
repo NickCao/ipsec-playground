@@ -61,19 +61,6 @@ func main() {
 			panic(err)
 		}
 		for _, remote := range cfg.Remotes {
-			ifid = ifid + 1
-			attrs := netlink.NewLinkAttrs()
-			attrs.Name = fmt.Sprintf("%s-%s", local.Prefix, remote.Name)
-			attrs.MTU = int(math.Min(float64(local.MTU), float64(remote.MTU)))
-			attrs.Flags |= net.FlagMulticast | net.FlagUp
-			link := netlink.Xfrmi{
-				LinkAttrs: attrs,
-				Ifid:      uint32(ifid),
-			}
-			err = netlink.LinkAdd(&link)
-			if err != nil {
-				panic(err)
-			}
 			conn, err := vici.MarshalMessage(Connection{
 				Version:     2,
 				Encap:       true,
@@ -108,7 +95,7 @@ func main() {
 				panic(err)
 			}
 			msg := vici.NewMessage()
-			err = msg.Set(attrs.Name, conn)
+			err = msg.Set("some random but unique name", conn)
 			if err != nil {
 				panic(err)
 			}

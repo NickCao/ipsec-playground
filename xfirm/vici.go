@@ -1,10 +1,25 @@
 package main
 
+import (
+	"encoding/pem"
+)
+
+func EncodePubkey(key []byte) string {
+	return string(pem.EncodeToMemory(&pem.Block{
+		Type:  "PUBLIC KEY",
+		Bytes: key,
+	}))
+}
+
 func NewConnection(
 	localAddrs []string,
 	remoteAddrs []string,
 	localPort int,
 	remotePort int,
+	localPubkey []byte,
+	remotePubkey []byte,
+	localId string,
+	remoteId string,
 ) Connection {
 	return Connection{
 		Version:     2,
@@ -19,11 +34,13 @@ func NewConnection(
 		IfIdOut:     "%unique",
 		Local: Local{
 			Auth:    "pubkey",
-			Pubkeys: []string{},
+			Id:      localId,
+			Pubkeys: []string{EncodePubkey(localPubkey)},
 		},
 		Remote: Remote{
 			Auth:    "pubkey",
-			Pubkeys: []string{},
+			Id:      remoteId,
+			Pubkeys: []string{EncodePubkey(remotePubkey)},
 		},
 		Children: map[string]Child{
 			"default": {
@@ -54,11 +71,13 @@ type Connection struct {
 
 type Local struct {
 	Auth    string   `vici:"auth"`
+	Id      string   `vici:"id"`
 	Pubkeys []string `vici:"pubkeys"`
 }
 
 type Remote struct {
 	Auth    string   `vici:"auth"`
+	Id      string   `vici:"id"`
 	Pubkeys []string `vici:"pubkeys"`
 }
 
