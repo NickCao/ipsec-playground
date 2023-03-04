@@ -6,6 +6,8 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+
+	"github.com/NickCao/xfirm/config"
 )
 
 func EncodePrivateKey(key []byte) PrivateKey {
@@ -42,21 +44,52 @@ func EncodePubkey(key []byte) string {
 }
 
 func NewConnection(
-	localAddrs []string,
-	remoteAddrs []string,
-	localPort int,
-	remotePort int,
-	localPubkey []byte,
-	remotePubkey []byte,
-	localId string,
-	remoteId string,
-) Connection {
-	return Connection{
+	localEndpoint config.Endpoint,
+	remoteEndpoint config.Endpoint,
+	localPublicKey []byte,
+	remotePublicKey []byte,
+) *Connection {
+	if localEndpoint.Id == remoteEndpoint.Id {
+		return nil
+	}
+
+	if localEndpoint.Family != remoteEndpoint.Family {
+		return nil
+	}
+
+	if localEndpoint.Address == "" && remoteEndpoint.Address == "" {
+		return nil
+	}
+
+	var remoteAddress []string
+
+	if remoteEndpoint.Address != "" {
+		remoteAddress = append(remoteAddress, remoteEndpoint.Address)
+	}
+
+	var localAddress string
+
+	switch localEndpoint.Family {
+	case "ip4":
+		localAddress = "0.0.0.0/0"
+		remoteAddress = append(remoteAddress, "0.0.0.0/0")
+	case "ip6":
+		localAddress = "::/0"
+		remoteAddress = append(remoteAddress, "::/0")
+	default:
+		return nil
+	}
+
+	if localEndpoint.Address != "" {
+		localAddress = localEndpoint.Address
+	}
+
+	return &Connection{
 		Version:     2,
-		LocalAddrs:  localAddrs,
-		RemoteAddrs: remoteAddrs,
-		LocalPort:   localPort,
-		RemotePort:  remotePort,
+		LocalAddrs:  []string{localAddress},
+		RemoteAddrs: remoteAddress,
+		LocalPort:   localEndpoint.Port,
+		RemotePort:  remoteEndpoint.Port,
 		Encap:       true,
 		KeyingTries: 0,
 		Unique:      "replace",
@@ -64,13 +97,13 @@ func NewConnection(
 		IfIdOut:     "%unique",
 		Local: Local{
 			Auth:    "pubkey",
-			Id:      localId,
-			Pubkeys: []string{EncodePubkey(localPubkey)},
+			Id:      localEndpoint.Id,
+			Pubkeys: []string{EncodePubkey(localPublicKey)},
 		},
 		Remote: Remote{
 			Auth:    "pubkey",
-			Id:      remoteId,
-			Pubkeys: []string{EncodePubkey(remotePubkey)},
+			Id:      remoteEndpoint.Id,
+			Pubkeys: []string{EncodePubkey(remotePublicKey)},
 		},
 		Children: map[string]Child{
 			"default": {
