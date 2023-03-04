@@ -5,13 +5,13 @@
       {
         "id": "nrt06",
         "family": "ip6",
-        "address": "nrt0.nichi.link",
+        "address": "2001:19f0:7001:53db:5400:4ff:fe19:b7a0",
         "port": 500
       },
       {
         "id": "nrt04",
         "family": "ip4",
-        "address": "nrt0.nichi.link",
+        "address": "45.32.61.43",
         "port": 500
       },
       {
