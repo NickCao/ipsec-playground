@@ -18,40 +18,6 @@ import (
 
 var configFile = flag.String("config", "/etc/xfirm.conf", "path to config file")
 
-type Local struct {
-	Auth    string   `vici:"auth"`
-	Pubkeys []string `vici:"pubkeys"`
-}
-
-type Remote struct {
-	Auth    string   `vici:"auth"`
-	Pubkeys []string `vici:"pubkeys"`
-}
-
-type Child struct {
-	LocalTS     []string `vici:"local_ts"`
-	RemoteTs    []string `vici:"remote_ts"`
-	StartAction string   `vici:"start_action"`
-}
-
-type Connection struct {
-	Version     int              `vici:"version"`
-	Encap       bool             `vici:"encap"`
-	LocalAddrs  []string         `vici:"local_addrs"`
-	RemoteAddrs []string         `vici:"remote_addrs"`
-	RemotePort  int              `vici:"remote_port"`
-	IfIdIn      int              `vici:"if_id_in"`
-	IfIdOut     int              `vici:"if_id_out"`
-	Local       Local            `vici:"local"`
-	Remote      Remote           `vici:"remote"`
-	Children    map[string]Child `vici:"children"`
-}
-
-type Key struct {
-	Type string `vici:"type"`
-	Data string `vici:"data"`
-}
-
 func main() {
 	flag.Parse()
 
@@ -114,8 +80,8 @@ func main() {
 				LocalAddrs:  local.LocalAddrs,
 				RemoteAddrs: remote.RemoteAddrs,
 				RemotePort:  int(remote.RemotePort),
-				IfIdIn:      ifid,
-				IfIdOut:     ifid,
+				IfIdIn:      "%unique",
+				IfIdOut:     "%unique",
 				Local: Local{
 					Auth: "pubkey",
 					Pubkeys: []string{string(pem.EncodeToMemory(&pem.Block{
