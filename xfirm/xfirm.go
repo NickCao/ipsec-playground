@@ -55,36 +55,16 @@ func main() {
 			panic(err)
 		}
 		for _, remote := range cfg.Remotes {
-			conn, err := vici.MarshalMessage(Connection{
-				Version:     2,
-				Encap:       true,
-				LocalAddrs:  local.LocalAddrs,
-				RemoteAddrs: remote.RemoteAddrs,
-				RemotePort:  int(remote.RemotePort),
-				IfIdIn:      "%unique",
-				IfIdOut:     "%unique",
-				Local: Local{
-					Auth: "pubkey",
-					Pubkeys: []string{string(pem.EncodeToMemory(&pem.Block{
-						Type:  "PUBLIC KEY",
-						Bytes: publicKey,
-					}))},
-				},
-				Remote: Remote{
-					Auth: "pubkey",
-					Pubkeys: []string{string(pem.EncodeToMemory(&pem.Block{
-						Type:  "PUBLIC KEY",
-						Bytes: remote.PublicKey,
-					}))},
-				},
-				Children: map[string]Child{
-					"default": {
-						LocalTS:     []string{"0.0.0.0/0", "::/0"},
-						RemoteTs:    []string{"0.0.0.0/0", "::/0"},
-						StartAction: "trap|start",
-					},
-				},
-			})
+			conn, err := vici.MarshalMessage(NewConnection(
+				[]string{"192.168.1.1", "%any"},
+				[]string{"192.168.1.2", "%any"},
+				500,
+				500,
+				publicKey,
+				publicKey,
+				"some_unique_id",
+				"some_unique_id",
+			))
 			if err != nil {
 				panic(err)
 			}
