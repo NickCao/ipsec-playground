@@ -1,5 +1,41 @@
 package main
 
+func NewConnection(
+	localAddrs []string,
+	remoteAddrs []string,
+	localPort int,
+	remotePort int,
+) Connection {
+	return Connection{
+		Version:     2,
+		LocalAddrs:  localAddrs,
+		RemoteAddrs: remoteAddrs,
+		LocalPort:   localPort,
+		RemotePort:  remotePort,
+		Encap:       true,
+		KeyingTries: 0,
+		Unique:      "replace",
+		IfIdIn:      "%unique",
+		IfIdOut:     "%unique",
+		Local: Local{
+			Auth:    "pubkey",
+			Pubkeys: []string{},
+		},
+		Remote: Remote{
+			Auth:    "pubkey",
+			Pubkeys: []string{},
+		},
+		Children: map[string]Child{
+			"default": {
+				LocalTS:     []string{"0.0.0.0/0", "::/0"},
+				RemoteTs:    []string{"0.0.0.0/0", "::/0"},
+				Mode:        "tunnel",
+				StartAction: "trap|start",
+			},
+		},
+	}
+}
+
 type Connection struct {
 	Version     int              `vici:"version"`
 	LocalAddrs  []string         `vici:"local_addrs"`
