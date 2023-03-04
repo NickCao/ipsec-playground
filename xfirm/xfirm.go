@@ -4,23 +4,15 @@ import (
 	"crypto/ed25519"
 	"crypto/x509"
 	"encoding/json"
-	"encoding/pem"
 	"flag"
-	"os"
-
-	"github.com/NickCao/xfirm/config"
 	"github.com/strongswan/govici/vici"
+	"os"
 )
 
 var configFile = flag.String("config", "/etc/xfirm.conf", "path to config file")
 
 func main() {
 	flag.Parse()
-
-	sess, err := vici.NewSession()
-	if err != nil {
-		panic(err)
-	}
 
 	file, err := os.Open(*configFile)
 	if err != nil {
@@ -30,6 +22,13 @@ func main() {
 
 	cfg := config.Config{}
 	err = decoder.Decode(&cfg)
+
+	sk, _, err := GenerateKeypair()
+	if err != nil {
+		panic(err)
+	}
+
+	pk, err := PubkeyFromPrivateKey(sk)
 	if err != nil {
 		panic(err)
 	}
