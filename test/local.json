@@ -1,0 +1,17 @@
+{
+  "private_key": "",
+  "endpoints": [
+    {
+      "id": "local6",
+      "family": "ip6",
+      "address": "",
+      "port": 500
+    },
+    {
+      "id": "local4",
+      "family": "ip4",
+      "address": "",
+      "port": 500
+    }
+  ]
+}
