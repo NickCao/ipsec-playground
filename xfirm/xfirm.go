@@ -76,8 +76,6 @@ func main() {
 	for _, local := range config.Endpoints {
 		for _, identity := range registry {
 			for _, remote := range identity.Endpoints {
-				fmt.Printf("local: %+v, remote: %+v\n", local, remote)
-
 				n := NewConnection(
 					local,
 					remote,
@@ -87,6 +85,8 @@ func main() {
 				if n == nil {
 					continue
 				}
+
+				fmt.Printf("local: %+v, remote: %+v\n", local, remote)
 
 				conn, err := vici.MarshalMessage(*n)
 				if err != nil {
