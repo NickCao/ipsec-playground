@@ -5,23 +5,31 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"flag"
-	"github.com/strongswan/govici/vici"
+	"fmt"
 	"os"
+
+	"github.com/NickCao/xfirm/config"
+	"github.com/strongswan/govici/vici"
 )
 
-var configFile = flag.String("config", "/etc/xfirm.conf", "path to config file")
+var registryFile = flag.String("registry", "registry.json", "path to registry")
+var id4 = flag.String("id4", "", "id for ipv4")
+var id6 = flag.String("id6", "", "id for ipv6")
 
 func main() {
 	flag.Parse()
 
-	file, err := os.Open(*configFile)
+	file, err := os.Open(*registryFile)
 	if err != nil {
 		panic(err)
 	}
-	decoder := json.NewDecoder(file)
 
-	cfg := config.Config{}
-	err = decoder.Decode(&cfg)
+	decoder := json.NewDecoder(file)
+	registry := config.Registy{}
+	err = decoder.Decode(&registry)
+	if err != nil {
+		panic(err)
+	}
 
 	sk, _, err := GenerateKeypair()
 	if err != nil {
@@ -33,46 +41,45 @@ func main() {
 		panic(err)
 	}
 
-	for _, local := range cfg.Locals {
-		key, err := vici.MarshalMessage(PrivateKey{
-			Type: "any",
-			Data: string(pem.EncodeToMemory(&pem.Block{
-				Type:  "PRIVATE KEY",
-				Bytes: local.PrivateKey,
-			})),
-		})
-		_, err = sess.CommandRequest("load-key", key)
-		if err != nil {
-			panic(err)
-		}
-		privateKey, err := x509.ParsePKCS8PrivateKey(local.PrivateKey)
-		if err != nil {
-			panic(err)
-		}
-		publicKey, err := x509.MarshalPKIXPublicKey(privateKey.(ed25519.PrivateKey).Public())
-		if err != nil {
-			panic(err)
-		}
-		for _, remote := range cfg.Remotes {
+	sess, err := vici.NewSession()
+	if err != nil {
+		panic(err)
+	}
+
+	key, err := vici.MarshalMessage(EncodePrivateKey(sk))
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = sess.CommandRequest("load-key", key)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, local := range []string{*id4, *id6} {
+		for _, remote := range registry {
 			conn, err := vici.MarshalMessage(NewConnection(
-				[]string{"192.168.1.1", "%any"},
-				[]string{"192.168.1.2", "%any"},
+				[]string{"%any"},
+				[]string{remote.Addr, "%any"},
 				500,
 				500,
-				publicKey,
-				publicKey,
-				"some_unique_id",
-				"some_unique_id",
+				pk,
+				pk,
+				local,
+				remote.Id,
 			))
 			if err != nil {
 				panic(err)
 			}
+
 			msg := vici.NewMessage()
-			err = msg.Set("some random but unique name", conn)
+			err = msg.Set(fmt.Sprintf("%s-%s", local, remote.Id), conn)
 			if err != nil {
 				panic(err)
 			}
-			if _, err = sess.CommandRequest("load-conn", msg); err != nil {
+
+			_, err = sess.CommandRequest("load-conn", msg)
+			if err != nil {
 				panic(err)
 			}
 		}
