@@ -5,13 +5,13 @@
       "id": "local6",
       "family": "ip6",
       "address": "2402:f000:2:c801:3a00:25ff:fe59:8c06",
-      "port": 12501
+      "port": 12500
     },
     {
       "id": "local4",
       "family": "ip4",
       "address": "183.172.204.11",
-      "port": 12502
+      "port": 12500
     }
   ]
 }

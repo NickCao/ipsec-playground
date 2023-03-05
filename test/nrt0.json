@@ -5,13 +5,13 @@
       "id": "nrt06",
       "family": "ip6",
       "address": "",
-      "port": 12503
+      "port": 12501
     },
     {
       "id": "nrt04",
       "family": "ip4",
       "address": "",
-      "port": 12504
+      "port": 12501
     }
   ]
 }
