@@ -1,53 +1,14 @@
 package main
 
 import (
-	"crypto/ed25519"
-	"crypto/rsa"
-	"crypto/x509"
-	"encoding/pem"
-	"fmt"
-
 	"github.com/NickCao/xfirm/config"
 )
-
-func EncodePrivateKeyMessage(key []byte) PrivateKey {
-	return PrivateKey{
-		Type: "any",
-		Data: string(pem.EncodeToMemory(&pem.Block{
-			Type:  "PRIVATE KEY",
-			Bytes: key,
-		})),
-	}
-}
-
-func PubkeyFromPrivateKey(key []byte) ([]byte, error) {
-	sk, err := x509.ParsePKCS8PrivateKey(key)
-	if err != nil {
-		return nil, err
-	}
-
-	switch v := sk.(type) {
-	case *rsa.PrivateKey:
-		return x509.MarshalPKIXPublicKey(v.Public())
-	case ed25519.PrivateKey:
-		return x509.MarshalPKIXPublicKey(v.Public())
-	default:
-		return nil, fmt.Errorf("unsupported private key type: %T", v)
-	}
-}
-
-func EncodePubkey(key []byte) string {
-	return string(pem.EncodeToMemory(&pem.Block{
-		Type:  "PUBLIC KEY",
-		Bytes: key,
-	}))
-}
 
 func NewConnection(
 	localEndpoint config.Endpoint,
 	remoteEndpoint config.Endpoint,
-	localPublicKey []byte,
-	remotePublicKey []byte,
+	localPublicKey string,
+	remotePublicKey string,
 ) *Connection {
 	if localEndpoint.Id == remoteEndpoint.Id {
 		return nil
@@ -94,12 +55,12 @@ func NewConnection(
 		Local: Local{
 			Auth:    "pubkey",
 			Id:      localEndpoint.Id,
-			Pubkeys: []string{EncodePubkey(localPublicKey)},
+			Pubkeys: []string{localPublicKey},
 		},
 		Remote: Remote{
 			Auth:    "pubkey",
 			Id:      remoteEndpoint.Id,
-			Pubkeys: []string{EncodePubkey(remotePublicKey)},
+			Pubkeys: []string{remotePublicKey},
 		},
 		Children: map[string]Child{
 			"default": {

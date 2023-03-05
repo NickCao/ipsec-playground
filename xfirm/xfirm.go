@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -10,6 +9,18 @@ import (
 	"github.com/NickCao/xfirm/config"
 	"github.com/strongswan/govici/vici"
 )
+
+const PRIVATE_KEY = `
+-----BEGIN PRIVATE KEY-----
+MC4CAQAwBQYDK2VwBCIEII2FUjQSzGXYmw5taavsEePCHUsQ3VyxfdgniC9Ndvvz
+-----END PRIVATE KEY-----
+`
+
+const PUBLIC_KEY = `
+-----BEGIN PUBLIC KEY-----
+MCowBQYDK2VwAyEAmW582ua12TEQq7sFw1h5lBNqU7UTVhA75LLTNfOPR0k=
+-----END PUBLIC KEY-----
+`
 
 var registryPath = flag.String("registry", "registry.json", "path to registry")
 var configPath = flag.String("config", "config.json", "path to config")
@@ -52,18 +63,10 @@ func main() {
 		panic(err)
 	}
 
-	// using static key pair to ease testing
-	sk, err := base64.RawStdEncoding.DecodeString("MC4CAQAwBQYDK2VwBCIEIKA57upEiuTmii9iE8d79U5896A7uV9kC78f6fJwQMbx")
-	if err != nil {
-		panic(err)
-	}
-
-	pk, err := PubkeyFromPrivateKey(sk)
-	if err != nil {
-		panic(err)
-	}
-
-	key, err := vici.MarshalMessage(EncodePrivateKeyMessage(sk))
+	key, err := vici.MarshalMessage(PrivateKey{
+		Type: "any",
+		Data: PRIVATE_KEY,
+	})
 	if err != nil {
 		panic(err)
 	}
@@ -79,8 +82,8 @@ func main() {
 				n := NewConnection(
 					local,
 					remote,
-					pk,
-					pk,
+					PUBLIC_KEY,
+					PUBLIC_KEY,
 				)
 				if n == nil {
 					continue
