@@ -10,6 +10,9 @@ import (
 	"github.com/strongswan/govici/vici"
 )
 
+// openssl genpkey -algorithm ed25519 -outform PEM
+// openssl pkey -pubout
+
 const PRIVATE_KEY = `
 -----BEGIN PRIVATE KEY-----
 MC4CAQAwBQYDK2VwBCIEII2FUjQSzGXYmw5taavsEePCHUsQ3VyxfdgniC9Ndvvz
