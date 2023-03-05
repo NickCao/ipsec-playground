@@ -10,7 +10,7 @@
     {
       "id": "local4",
       "family": "ip4",
-      "address": "",
+      "address": "183.172.204.11",
       "port": 12500
     }
   ]
