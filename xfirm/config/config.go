@@ -1,14 +1,14 @@
 package config
 
 type Config struct {
-	PrivateKey []byte     `json:"private_key"`
+	PrivateKey string     `json:"private_key"`
 	Endpoints  []Endpoint `json:"endpoints"`
 }
 
 type Registy []Identity
 
 type Identity struct {
-	PublicKey []byte     `json:"public_key"`
+	PublicKey string     `json:"public_key"`
 	Endpoints []Endpoint `json:"endpoints"`
 }
 
